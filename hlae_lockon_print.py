@@ -50,9 +50,8 @@ def populateInput():
     # Consider campath points only.
     for data_line in lines:
         data = data_line.split()
-        if data:
-            if data[0] == "<p":
-                readDataAndStore(data)
+        if data and data[0] == "<p":
+            readDataAndStore(data)
     
 def generateOutput():
     # Output xml campath file.

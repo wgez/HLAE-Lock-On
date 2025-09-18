@@ -1,7 +1,9 @@
 # What this program does:
-# Build a campath where a stationary camera will automatically turn to face your player model.
-# 1) Provide the stationary cam position x0, y0, z0 (at bottom)
-# 2) Provide your campath file location (the points to rotate towards)
+# Builds a campath where a stationary camera will automatically turn to face your player model.
+# 1) Paste your desired stationary cam position (x, y, z) at the bottom. (get into position and use "mirv_input position")
+# 2) Provide your input campath file location (these are the points to rotate towards, spam points while in firstperson)
+# 3) Provide the name you'd like your output campath file to be saved as (it will be auto-generated).
+# NOTE: This program may break if not in the same format produced by HLAE.
 
 import numpy as np
 from scipy.spatial.transform import Rotation as R
@@ -19,8 +21,8 @@ def storeDataInput(data_point, data_type):
         fov_orig.append(data_point)
 
 def readDataAndStore(data_points):
-    # For only the relevant data points, store the data in between the quotes ("").
-    for i in range(1, 6): # Read data points t -> z.
+    # Given a campath point line, extract and store its data.
+    for i in range(1, 6): # Read (t, x, y, z, fov) only.
         current_point = data_points[i]
         extraction = ""
         for j in range(len(current_point)):
@@ -39,10 +41,11 @@ def populateInput():
     with open(INPUT_FILEPATH) as f:
         lines = f.readlines()
 
-    # Formula to look at lines with campath points only: lines[9:len(lines)-3]
-    for data_line in lines[9:len(lines)-3]:
-        data_points = data_line.split()
-        readDataAndStore(data_points)
+    # Consider campath points only.
+    for data_line in lines:
+        data = data_line.split()
+        if data and data[0] == "<p":
+            readDataAndStore(data)
     
 def generateOutput():
     # Output xml campath file.
@@ -73,6 +76,7 @@ def appendData(t, x, y, z, fov, rx, ry, rz):
     rz_new.append(rz)
 
 def calculateRotation():
+    r_solutions = {} # Hashmap solutions for reuse. Format: (x1, y1, z1) => (rx, ry, rz)
     for i in range(0, len(time_orig)):
         t = time_orig[i]
         x0 = cam_position[0]
@@ -85,35 +89,39 @@ def calculateRotation():
         camera_pos = np.array([x0, y0, z0])
         target_pos = np.array([x1, y1, z1])
 
-        # 1. Calculate "forward" vector.
-        f_vec = target_pos - camera_pos
-        f_norm = np.linalg.norm(f_vec)
-        if f_norm == 0: # cam position = target position (no rotation)
-            rx = ry = rz = 0.0
-            appendData(t, x0, y0, z0, fov, rx, ry, rz)
-            continue
-        f_vec /= f_norm
+        try: # 0. If a point is repeated, reuse answer found from earlier.
+            rx, ry, rz = r_solutions[(x1, y1, z1)]
+        except KeyError:
+            # 1. Calculate "forward" vector.
+            f_vec = target_pos - camera_pos
+            f_norm = np.linalg.norm(f_vec)
+            if f_norm == 0: # cam position = target position (no rotation)
+                rx = ry = rz = 0.0
+                appendData(t, x0, y0, z0, fov, rx, ry, rz)
+                continue
+            f_vec /= f_norm
 
-        # 2. Calculate "right" vector.
-        u_unit_vec = np.array([0.0, 0.0, 1.0])
-        r_vec = np.cross(u_unit_vec, f_vec)
-        if np.linalg.norm(r_vec) < 1e-6:  # Forward parallel to up
-            r_vec = np.array([0.0, 1.0, 0.0]) 
-        else:
-            r_vec /= np.linalg.norm(r_vec)
+            # 2. Calculate "right" vector.
+            u_unit_vec = np.array([0.0, 0.0, 1.0])
+            r_vec = np.cross(u_unit_vec, f_vec)
+            if np.linalg.norm(r_vec) < 1e-6:  # Forward parallel to up
+                r_vec = np.array([0.0, 1.0, 0.0]) 
+            else:
+                r_vec /= np.linalg.norm(r_vec)
 
-        # 3. Calculate "up" vector.
-        u_vec = np.cross(f_vec, r_vec)
+            # 3. Calculate "up" vector.
+            u_vec = np.cross(f_vec, r_vec)
 
-        # 4. Construct rotation matrix (note: adjusted for Source axes).
-        rot_matrix = np.column_stack((f_vec, r_vec, u_vec))
+            # 4. Construct rotation matrix (note: adjusted for Source axes).
+            rot_matrix = np.column_stack((f_vec, r_vec, u_vec))
 
-        # 5. Calculate euler angles.
-        r = R.from_matrix(rot_matrix)
-        e_angles = r.as_euler('xyz', degrees=True)
-        rx = e_angles[0]
-        ry = e_angles[1]
-        rz = e_angles[2]
+            # 5. Calculate euler angles, store solutions for reuse.
+            r = R.from_matrix(rot_matrix)
+            e_angles = r.as_euler('xyz', degrees=True)
+            rx = e_angles[0]
+            ry = e_angles[1]
+            rz = e_angles[2]
+            r_solutions[(x1, y1, z1)] = (rx, ry, rz)
 
         # 6. Populate output data.
         appendData(t, x0, y0, z0, fov, rx, ry, rz)
@@ -139,10 +147,13 @@ ry_new = []
 rz_new = []
 
 ############## SUPPLY THESE INPUTS ##############
-cam_position = [100.0, -100.0, 100.0] # chosen stationary cam position
-input_filename = "yourInputCampathFilename" # the campath positions file to automatically turn towards
-output_filename = "yourOutputCampathFilename" # chosen output campath file name
-directory_path = "../../../Program Files (x86)/Steam/steamapps/common/Team Fortress 2/tf/campath/"
+cam_position_input = "0.000000 0.000000 0.000000" # your chosen stationary cam position (use "mirv_input position")
+directory_path = "C:/Program Files (x86)/Steam/steamapps/common/Team Fortress 2/tf/campath/"
+input_filename = "gorgealone_pulsev1" # the data points to rotate towards
+output_filename = "yourOutputCampathFilename" # chosen output campath file name (will auto-generate one for you)
+
+#################################################
 INPUT_FILEPATH = f"{directory_path}{input_filename}"
 OUTPUT_FILEPATH = f"{directory_path}{output_filename}"
+cam_position = [float(x) for x in cam_position_input.split()]
 main()
