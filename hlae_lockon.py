@@ -1,5 +1,7 @@
 # What this program does:
 # Builds a campath where a stationary camera will automatically turn to face your player model.
+# This version's for those who have or know how to get Python/numpy/scipy on their personal machine.
+# It will automatically generate the output campath file.
 # 1) Paste your desired stationary cam position (x, y, z) at the bottom. (get into position and use "mirv_input position")
 # 2) Provide your input campath file location (these are the points to rotate towards, spam points while in firstperson)
 # 3) Provide the name you'd like your output campath file to be saved as (it will be auto-generated).
@@ -131,7 +133,7 @@ def main():
     calculateRotation()
     generateOutput()
 
-##########################################################
+#################################################
 time_orig = []
 x_orig = []
 y_orig = []

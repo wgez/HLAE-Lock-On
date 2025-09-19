@@ -1,5 +1,6 @@
 # What this program does:
 # Builds a campath where a stationary camera will automatically turn to face your player model.
+# This version's for the general public, allowing use without any installation on their part.
 # 1) Copy/Paste this entire code file into any one of these websites:
 # Site A: https://cliprun.com/online-numpy-compiler
 # Site B: https://trinket.io/embed/python3/a5bd54189b
