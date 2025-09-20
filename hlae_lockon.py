@@ -151,7 +151,7 @@ rz_new = []
 ############## SUPPLY THESE INPUTS ##############
 cam_position_input = "0.000000 0.000000 0.000000" # your chosen stationary cam position (use "mirv_input position")
 directory_path = "C:/Program Files (x86)/Steam/steamapps/common/Team Fortress 2/tf/campath/"
-input_filename = "gorgealone_pulsev1" # the data points to rotate towards
+input_filename = "yourInputCampathFilename" # the data points to rotate towards
 output_filename = "yourOutputCampathFilename" # chosen output campath file name (will auto-generate one for you)
 
 #################################################
