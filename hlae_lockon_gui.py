@@ -1,3 +1,7 @@
+# What this program does:
+# A desktop app that builds a campath where a stationary camera will automatically turn to face your player model.
+# Designed for better ease of use for the general public.
+
 import tkinter as tk
 from tkinter import filedialog, messagebox
 from hlae_lockon_gui_math import executeHLAELockOn
