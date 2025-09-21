@@ -27,5 +27,5 @@ A simple desktop app that builds a campath where a stationary camera will automa
 5. In VSCode, open a terminal and go to the HLAE-Lock-On directory (cd).
 6. Install PyInstaller by entering in the terminal: pip install pyinstaller
 7. Build the executable by entering in the terminal: pyinstaller --onefile --windowed hlae_lockon_gui.py
-8. The executable will found in the newly created dist/ folder.
+8. The executable will be found in the newly created dist/ folder.
 Note: I assumed these are the steps. I can add a more robust version if issues are found.
