@@ -30,10 +30,6 @@ def run():
     except Exception as e:
         messagebox.showerror("Error", f"Failed to execute!\n(Possible Reasons: invalid position coordinates, invalid input filepath, input campath file's contents tampered with, cannot save to output location, math bug, etc.)\n\nError:\n{e}")
         return
-    
-    
-
-    
 
 def browse_file():
     file_path = filedialog.askopenfilename(title="Select input campath file")

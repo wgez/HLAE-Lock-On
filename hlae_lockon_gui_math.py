@@ -1,8 +1,7 @@
 # What this program does:
 # Builds a campath where a stationary camera will automatically turn to face your player model.
-# This version is a desktop app, for better ease of use.
+# This version is for the desktop app, for better ease of use.
 # It will automatically generate the output campath file, given a position and input campath file.
-# NOTE: This program may break if not in the same format produced by HLAE.
 
 import numpy as np
 from scipy.spatial.transform import Rotation as R
